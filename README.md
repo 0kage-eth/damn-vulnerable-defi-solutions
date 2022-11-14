@@ -29,3 +29,10 @@ Since poolBalance does not increase when we use the `transfer` function, asserti
 ### CHALLENGE 2 - Naive Receiver
 
 Key to this challenge is to realize that flashLoans function in [NaiveReceiverLenderPool.sol](./contracts/naive-receiver/NaiveReceiverLenderPool.sol) is not checking if contract caller is indeed the borrower. Since fees is high (1 Eth), anyone can drain the receiver contract by repeatedly calling flashLoans and draining out 1 Ether everytime. Run a while loop until all ether is drained
+
+### CHALLENGE 3 - Naive Receiver
+
+In this challenge, we have to deplete the funds from a TrusterLenderPool. 2 things are clear from the `TrusterLenderPool` contract in [TrusterLenderPool.sol](./contracts/truster/TrusterLenderPool.sol). - `flashLoan()` function does not check if sender is borrower. Meaning anyone can send with a borrower address - `borrow` amount can be 0. In this case, we can send a 0 amount & access the `target` call function
+
+Key here is to access the call function on `target` address where `msg.sender` becomes the TrusterLenderPool contract.
+I send the target address as the token address and call the function `approve` to get my attacker address to allow to spend all tokens in trustpool contract. After this, its straight forward - I transfer all tokens from pool to attacker
