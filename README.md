@@ -30,9 +30,24 @@ Since poolBalance does not increase when we use the `transfer` function, asserti
 
 Key to this challenge is to realize that flashLoans function in [NaiveReceiverLenderPool.sol](./contracts/naive-receiver/NaiveReceiverLenderPool.sol) is not checking if contract caller is indeed the borrower. Since fees is high (1 Eth), anyone can drain the receiver contract by repeatedly calling flashLoans and draining out 1 Ether everytime. Run a while loop until all ether is drained
 
+---
+
 ### CHALLENGE 3 - Naive Receiver
 
 In this challenge, we have to deplete the funds from a TrusterLenderPool. 2 things are clear from the `TrusterLenderPool` contract in [TrusterLenderPool.sol](./contracts/truster/TrusterLenderPool.sol). - `flashLoan()` function does not check if sender is borrower. Meaning anyone can send with a borrower address - `borrow` amount can be 0. In this case, we can send a 0 amount & access the `target` call function
 
 Key here is to access the call function on `target` address where `msg.sender` becomes the TrusterLenderPool contract.
 I send the target address as the token address and call the function `approve` to get my attacker address to allow to spend all tokens in trustpool contract. After this, its straight forward - I transfer all tokens from pool to attacker
+
+---
+
+### CHALLENGE 4 - Side Entrance
+
+In this challenge, we have to drain all funds from a Lending Pool contract [SideEntranceLenderPool.sol](./contracts/side-entrance/SideEntranceLenderPool.sol). Key here is to note that the `flashLoan` function is only checking if the overall balance after loan > balance before loan. We exploit this weakness by doing following
+
+- Create a new contract called `SideEntranceLenderPoolExploit`
+- Create a function `pawn` which first borrows a flash loan from pool contract. On borrowing funds, the `fallback()` function gets triggered
+- Inside fallback, I deposit the funds back into the lending pool contract. This ensures balance before and after are same
+- But now `balances` mapping shows that attacking contract is the owner of the funcs
+- Now I happily go and withdraw funds to this attacking contract
+- And from there, I transfer funds to whereever I want
