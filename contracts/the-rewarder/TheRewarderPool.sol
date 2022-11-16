@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "./RewardToken.sol";
 import "../DamnValuableToken.sol";
 import "./AccountingToken.sol";
+import "hardhat/console.sol";
 
 /**
  * @title TheRewarderPool
@@ -67,7 +68,7 @@ contract TheRewarderPool {
 
         if(isNewRewardsRound()) {
             _recordSnapshot();
-        }        
+        }
         
         uint256 totalDeposits = accToken.totalSupplyAt(lastSnapshotIdForRewards);
         uint256 amountDeposited = accToken.balanceOfAt(msg.sender, lastSnapshotIdForRewards);
@@ -98,6 +99,8 @@ contract TheRewarderPool {
     }
 
     function isNewRewardsRound() public view returns (bool) {
+        // console.log("current timestamp" , block.timestamp);
+        // console.log("next snapshot", lastRecordedSnapshotTimestamp + REWARDS_ROUND_MIN_DURATION);
         return block.timestamp >= lastRecordedSnapshotTimestamp + REWARDS_ROUND_MIN_DURATION;
     }
 }

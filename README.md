@@ -51,3 +51,17 @@ In this challenge, we have to drain all funds from a Lending Pool contract [Side
 - But now `balances` mapping shows that attacking contract is the owner of the funcs
 - Now I happily go and withdraw funds to this attacking contract
 - And from there, I transfer funds to whereever I want
+
+---
+
+### CHALLENGE 5 - The Rewarder
+
+In this challenge, key is to use the flash loan exactly at the timestamp when rewards are distributed. At this time, I depositing all the DMV tokens borrowed from flash loan pool into the Rewards pool, I dilute every other player in Reward Pool and capture all the rewards that would be paid out in the next cycle.
+
+Here are following steps
+
+- Create a [RewardAttacker.sol](./contracts/the-rewarder/RewardAttacker.sol) contract and define a `receiveFlashLoan` function. This function will be called right after flash loan deposit happens into the attacker contract
+- Wait for the Next Snapshot time - at the exact timestamp, deposit DMV tokens into the [TheRewardPool.sol](./contracts/the-rewarder/TheRewarderPool.sol).
+- Within deposits, accToken is minted and snapshot is captured
+- Once done, withdraw all tokens from Reward Pool and pay back the flashloan
+- Now on the next reward date, distribute Rewards transfers all rewards to me
