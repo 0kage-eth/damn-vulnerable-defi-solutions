@@ -61,7 +61,31 @@ In this challenge, key is to use the flash loan exactly at the timestamp when re
 Here are following steps
 
 - Create a [RewardAttacker.sol](./contracts/the-rewarder/RewardAttacker.sol) contract and define a `receiveFlashLoan` function. This function will be called right after flash loan deposit happens into the attacker contract
-- Wait for the Next Snapshot time - at the exact timestamp, deposit DMV tokens into the [TheRewardPool.sol](./contracts/the-rewarder/TheRewarderPool.sol).
+- Wait for the Next Snapshot time - at the exact timestamp, deposit DVT tokens into the [TheRewardPool.sol](./contracts/the-rewarder/TheRewarderPool.sol).
 - Within deposits, accToken is minted and snapshot is captured
 - Once done, withdraw all tokens from Reward Pool and pay back the flashloan
 - Now on the next reward date, distribute Rewards transfers all rewards to me
+
+---
+
+### CHALLENGE 6 - Selfie
+
+https://www.damnvulnerabledefi.xyz/challenges/6.html
+Not sure why this contract is named Selfie.. anyways.
+
+Again key concept here is to exploit flash loans -> create a governance action that will be executed after some time delay.
+In the execution, do a low level function call to drainFunds() to attacker. Lets break it down
+
+1. First I create a [SelfieAttacker.sol](./contracts/selfie/SeflieAttacker.sol) file that has the callback function called `receiveTokens` which will be called from within flashloans
+2. In this function, first we call `snapshot()` to create a snapshot where balances will be captured by `ERC20Snapshot`
+3. Next we create an action -> each action has 3 items
+   - receiver (address on which the callback will be called)
+   - data (this is bytes data that includes function call and arguments to that function)
+   - weiAmount - this is the amount of ETH to be transferred (we can ignore this as there is no ETH transfer in our challenge)
+4. In the receiver, we first give the pool contract address - this is the [flashloan pool contract](./contracts/selfie/SelfiePool.sol)
+5. In the data, we encode the function `drainAllFunds` that is defined in the pool - note that this function can only be called by the Governance contract. This function takes a single address - here I assigned `tx.origin` -> a global variable that stores the original caller address, which in our case is the attacker
+6. Now define another function `exploit` inside SelfieAttacker that calls `flashloan` function in pool
+7. Since we took a flashloan of >50%, the `hasEnoughVotes` inside `queueAction` will return true. This will successfully queue txn
+8. Now last step, we shift time by 2 days and call the `executeAction` function in governance contract
+
+If all is done well, we end up with all the funds from this governance hack

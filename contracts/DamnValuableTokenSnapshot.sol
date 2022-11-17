@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol";
+import "hardhat/console.sol";
 
 /**
  * @title DamnValuableTokenSnapshot
@@ -22,6 +23,8 @@ contract DamnValuableTokenSnapshot is ERC20Snapshot {
     }
 
     function getBalanceAtLastSnapshot(address account) external view returns (uint256) {
+        console.log("snapshot id inside getBalance", lastSnapshotId);
+
         return balanceOfAt(account, lastSnapshotId);
     }
 

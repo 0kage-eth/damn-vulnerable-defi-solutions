@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "../DamnValuableTokenSnapshot.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "hardhat/console.sol";
 
 /**
  * @title SimpleGovernance
@@ -38,8 +39,8 @@ contract SimpleGovernance {
     function queueAction(address receiver, bytes calldata data, uint256 weiAmount) external returns (uint256) {
         require(_hasEnoughVotes(msg.sender), "Not enough votes to propose an action");
         require(receiver != address(this), "Cannot queue actions that affect Governance");
-
         uint256 actionId = actionCounter;
+
 
         GovernanceAction storage actionToQueue = actions[actionId];
         actionToQueue.receiver = receiver;
@@ -56,6 +57,7 @@ contract SimpleGovernance {
     function executeAction(uint256 actionId) external payable {
         require(_canBeExecuted(actionId), "Cannot execute this action");
         
+
         GovernanceAction storage actionToExecute = actions[actionId];
         actionToExecute.executedAt = block.timestamp;
 
@@ -89,4 +91,5 @@ contract SimpleGovernance {
         uint256 halfTotalSupply = governanceToken.getTotalSupplyAtLastSnapshot() / 2;
         return balance > halfTotalSupply;
     }
+
 }

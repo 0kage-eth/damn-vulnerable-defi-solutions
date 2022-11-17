@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./SimpleGovernance.sol";
+import "hardhat/console.sol";
 
 /**
  * @title SelfiePool
@@ -30,6 +31,7 @@ contract SelfiePool is ReentrancyGuard {
     }
 
     function flashLoan(uint256 borrowAmount) external nonReentrant {
+        console.log("entering flash loan");
         uint256 balanceBefore = token.balanceOf(address(this));
         require(balanceBefore >= borrowAmount, "Not enough tokens in pool");
         
