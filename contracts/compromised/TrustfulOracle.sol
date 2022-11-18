@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
-
+import "hardhat/console.sol";
 /**
  * @title TrustfulOracle
  * @author Damn Vulnerable DeFi (https://damnvulnerabledefi.xyz)
@@ -64,6 +64,9 @@ contract TrustfulOracle is AccessControlEnumerable {
     }
 
     function postPrice(string calldata symbol, uint256 newPrice) external onlyTrustedSource {
+        console.log("post price");
+        console.log("sender", msg.sender);
+        console.log("new price", newPrice);
         _setPrice(msg.sender, symbol, newPrice);
     }
 

@@ -89,3 +89,15 @@ In the execution, do a low level function call to drainFunds() to attacker. Lets
 8. Now last step, we shift time by 2 days and call the `executeAction` function in governance contract
 
 If all is done well, we end up with all the funds from this governance hack
+
+### CHALLENGE 7 - Compromised
+
+https://www.damnvulnerabledefi.xyz/challenges/7.html
+
+1. Key in this challenge is to realize that the output of API is a hex code. Convert hex code -> ASCII -> Base64. And to guess that it is a private key -> So if we create a wallet using this key and check public address, we realize it matches with 2 price oracles
+
+2. Notice that the [TrustfulOracle contract](./contracts/compromised/TrustfulOracle.sol) takes price from 3 oracles and calculates the median value using `_computeMedianPrice` function. Notice that there is a `postPrice` function in the same contract that can only be called by trusted oracles -> this function allows oracle to update a price -> and this function is manually callable
+
+3. We first create a signed txn that calls the `postPrice` function from a wallet address that we control using hacked private key. We then set a price of 0 from both oracles to force price to go to 0
+
+4. Once done, we go to the [Exchange contract](./contracts/compromised/Exchange.sol) to buy a NFT using the `buyOne` function. Next we again post a price (this time, we post the actual trading price of 990 ETH) to the oracle. And then call the `sellOne` function to sell at the high price. Buy low, sell high until the exchange is drained of all funds
